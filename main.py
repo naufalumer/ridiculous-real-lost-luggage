@@ -20,6 +20,8 @@ LINE = (
 
 # Gate: the sealed scorer accepts 1 to 200 characters. Fail loudly here
 # rather than shipping an invalid entry if the pitch is ever edited.
+# The brief also demands exactly one sentence, so guard that too: one
+# terminal period and no other sentence-ending period inside the line.
 MAX_CHARS = 200
 
 
@@ -27,6 +29,8 @@ def main() -> None:
     text = LINE.strip()
     if not 1 <= len(text) <= MAX_CHARS:
         raise SystemExit(f"entry is {len(text)} chars, gate allows 1-{MAX_CHARS}")
+    if text.count(".") != 1 or not text.endswith("."):
+        raise SystemExit("entry must be exactly one sentence (one terminal period)")
     output_dir = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "entry.txt").write_text(text, encoding="utf-8")
